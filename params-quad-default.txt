@@ -1,0 +1,38 @@
+integration_method= 'rk4'
+
+rho = 1.225 # air density, kg/m**3
+D = 0.15 # propeller diameter, m
+# dimensional thrust coef, kg*m = (dimensionless thrust coeff) * rho * D**4
+#   s.t. T = C_T * n**2
+#   where n is the propeller speed in rev/s
+C_T =  (2*np.pi)**2 * 3.02 * (10 ** -3) * params['rho'] * params['D']**4 # 7.393801800070592e-05 
+C_s =  (2*np.pi)**2 * 2.31e-5
+k1 = .05
+k2 = .1
+m = 2.4 # quadrotor mass, kg
+l_arm = 0.3 # arm length from center of mass to center of propeller
+h = 0.15
+g = 9.81
+#J = np.array([(1/12) * params['m'] * ((params['l_arm']*2)**2 + params['h']**2),(1/12) * params['m'] * ((params['l_arm']*2)**2 + params['h']**2),(1 / 12) * self.mass * (2 * (arm_length * 2) ** 2)]
+J = 1
+t2t = 0.006
+arm = 0.707106781 * .3
+
+w_m = 200000. # motor lowpass cutoff frequency
+motor_max_speed = 1e3
+motor_min_speed = 0.
+
+t_start = 0.0 
+t_stop = 5 # seconds
+dt = 1e-2 # integration step size
+dt_posctrl = 1e-2 # position control update time step
+dt_attctrl = 1e-2 # attitude control update time step
+dt_readout = 1e-2
+#sim_times = np.arange(self.params["t_start"], self.params["t_stop"], self.params["dt"])
+
+Q = 0.
+process_noise_covariance = params['Q ']* params['dt'] * np.ones((3,3))
+
+Vwind_mean = np.array([-1.0, 0.0, 0.0])
+Vwind_cov = np.eye(2)
+# Vwind_cutoff = 20. # cutoff frequency for noise filter

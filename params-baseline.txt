@@ -1,0 +1,17 @@
+lam_y = 2.0
+lam_x = 2.0
+lam_z = 2.0
+K_p_x = params['lam_x']**2
+K_p_y = params['lam_y']**2
+K_p_z = params['lam_z']**2
+K_d_x = 2*params['lam_x']# 2math.sqrt(lam)*2*9.81/.7 
+K_d_y = 2*params['lam_y']# 2math.sqrt(lam)*2*9.81/.7 #
+K_d_z = 2*params['lam_z']# 2math.sqrt(lam)*2*9.81/.7 #
+K_i_x = 1. # eval("0.0 * (params['lam_x']**3)")
+K_i_y = 1. # eval("0.0 * (params['lam_y']**3)")
+K_i_z = 1. # eval("0.0 * (params['lam_y']**3)")
+lam_th = 5.
+lam_w = 10.
+# K_p_th = 100.0 #0.5**2
+# K_d_th = 50.0 # 2*0.5
+# K_i_th = 0.0
