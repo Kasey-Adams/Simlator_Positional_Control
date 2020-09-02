@@ -50,16 +50,17 @@ class Baseline(Controller):
         self.g = 9.81  # not signed
 
         # PID parameters
-        self.K_i = 0.25  # eigs[0] * eigs[1] * eigs[2]
-        self.K_p = 1.0  # eigs[0] * eigs[1] + eigs[1] * eigs[2] + eigs[2] * eigs[0]
-        self.K_d = 3.0  # sum(eigs)
+        # self.K_i = 0.25  # eigs[0] * eigs[1] * eigs[2]
+        # self.K_p = 1.0  # eigs[0] * eigs[1] + eigs[1] * eigs[2] + eigs[2] * eigs[0]
+        # self.K_d = 3.0  # sum(eigs)
+
         self.Att_p = 400
         self.Att_d = 150
         self.time = 0.0
         self.int_p_e = np.zeros(3)
 
     def policy(self, X, pd=np.zeros(3), vd=np.zeros(3), ad=np.zeros(3), jd=np.zeros(3), sd=np.zeros(3),
-                 logentry=None, time=None):
+                 logentry=None, time=None, K_i = 0, K_p = 0, K_d = 0):
         #     print('baseline: X = ', X)
         p_e = pd-X[:3]
         v_e = vd-X[3:6]

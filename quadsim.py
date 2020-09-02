@@ -72,6 +72,10 @@ class Quadrotor():
         self.times = np.arange(self.t_start, self.t_stop, self.dt)
         self.ave_dt = self.times[1] - self.times[0]
 
+        self.K_i = 0
+        self.K_d = 0
+        self.K_p = 0
+
     def update_motor_speed(self, u, dt, Z=None):
         # Hidden motor dynamics discrete update
         if Z is None:
@@ -120,9 +124,9 @@ class Quadrotor():
         n = np.sqrt(
             np.multiply(a, self.B0[0, :]) / (self.params['C_T'] * self.params['rho'] * self.params['D'] ** 4))
         Fs_B = (Vs_B / np.linalg.norm(Vs_B)) * self.params['C_s'] * self.params['rho'] * sum(n ** self.params['k1']) * (
-            np.linalg.norm(Vinf) ** (2 - self.params['k1'])) * (self.params['D'] ** (2 + self.params['k1'])) * (
-            (np.pi / 2) ** 2 - alpha ** 2) * (alpha + self.params['k2'])
-        #Fs_B = [0,0,0]
+                np.linalg.norm(Vinf) ** (2 - self.params['k1'])) * (self.params['D'] ** (2 + self.params['k1'])) * (
+                       (np.pi / 2) ** 2 - alpha ** 2) * (alpha + self.params['k2'])
+        # Fs_B = [0,0,0]
         dxdt[3:6] += rowan.rotate(q, Fs_B) / self.mass
         qnew = rowan.calculus.integrate(q, omega, self.ave_dt)
         if qnew[0] < 0:
@@ -165,7 +169,8 @@ class Quadrotor():
             if t >= t_posctrl:
                 pd, vd, ad, jd, sd = RRT(t)
                 T_r, th_r, w_d, alpha_d, u, A = controller.policy(X=X, pd=pd, vd=vd, ad=ad, jd=jd, sd=sd,
-                                                                  logentry=logentry, time=t)
+                                                                  logentry=logentry, time=t, K_i=self.K_i, K_p=self.K_p,
+                                                                  K_d=self.K_d)
                 t_posctrl += controller.params['dt_posctrl']
             # if t >= t_attctrl:
             #     u = controller.attitude(X, T_r=T_r, th_r=th_r, w_d=w_d, alpha_d=alpha_d, logentry=logentry)
@@ -184,14 +189,17 @@ class Quadrotor():
                 logentry['ad'] = ad
                 logentry['jd'] = jd
                 logentry['sd'] = sd
-                #logentry['pos'] = RRT.position
-                #logentry['dist'] = RRT(dist)
+                # logentry['pos'] = RRT.position
+                # logentry['dist'] = RRT(dist)
                 yield copy.copy(logentry)
                 t_readout += self.params['dt_readout']
 
-    def run(self, controller=controller.Baseline(), trajectory=trajectory):
+    def run(self, controller=controller.Baseline(), trajectory=trajectory, K_i = 0, K_d = 0, K_p = 0):
         # # Use zip to switch output array from indexing of time, (X, t, log), to indexing of (X, t, log), time
         # log = zip(*self.runiter(trajectory=trajectory, controller=controller))
+        self.K_i = K_i
+        self.K_p = K_p
+        self.K_d = K_d
         log = list(self.runiter(controller=controller))
         # Concatenate entries of the log dictionary into single np.array, with first dimension corresponding to each time step recorded
         log2 = dotdict({k: np.array([logentry[k] for logentry in log]) for k in log[0]})
